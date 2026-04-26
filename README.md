@@ -1,6 +1,6 @@
 # Inviscan 🔍
 
-Inviscan is a web-based application designed to provide efficient and interactive functionality using modern web technologies. The project is built with a fast frontend setup and integrates backend services for smooth performance.
+InviScan is a web application designed to provide intelligent scanning and interpretation of invitation data. The system combines modern frontend technologies with a scalable backend and advanced AI capabilities to deliver efficient and accurate results.
 
 ---
 
