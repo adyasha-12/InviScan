@@ -184,7 +184,7 @@ async function preprocessImage(base64Image: string): Promise<string> {
 
 async function extractInvitationData(base64Image: string): Promise<Partial<Event> | null> {
   try {
-    const apiKey = "AIzaSyB7kz_x2de8EtZLUwgDiJzCCtFAlt0WXHQ";
+    const apiKey = "YOUR_API_KEY";
     if (!apiKey) {
       throw new Error(`Gemini API Key is missing or empty. Please check your environment variables.`);
     }
@@ -865,7 +865,7 @@ function CalendarScreen({ events, onDeleteEvent, onViewEventDetails }: { events:
 
 async function getEventPrepAdvice(event: Event): Promise<string> {
   try {
-    const apiKey = "AIzaSyB7kz_x2de8EtZLUwgDiJzCCtFAlt0WXHQ";
+    const apiKey = "YOUR_API_KEY";
     if (!apiKey) {
       throw new Error("Gemini API Key is missing.");
     }
@@ -1462,7 +1462,7 @@ function CameraScreen({ onClose, onScanComplete }: { onClose: () => void, onScan
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const apiKey = "AIzaSyB7kz_x2de8EtZLUwgDiJzCCtFAlt0WXHQ";
+    const apiKey = "YOUR_API_KEY";
     if (!apiKey) {
       setError("Gemini API Key is missing. OCR features will only work within the AI Studio preview or when configured in the environment.");
     }
