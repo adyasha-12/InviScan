@@ -4,15 +4,6 @@ InviScan is a web application designed to provide intelligent scanning and inter
 
 ---
 
-## 🚀 Features
-
-* Responsive and user-friendly interface
-* Fast development using modern tooling
-* Secure environment variable handling
-* Scalable backend integration
-
----
-
 ## 🛠️ Tech Stack
 
 * Frontend: HTML, CSS, JavaScript / TypeScript
@@ -46,13 +37,6 @@ InviScan is a web application designed to provide intelligent scanning and inter
 * `server.ts` → Backend/server logic
 * `firebase-*` → Firebase configuration files
 * `vite.config.ts` → Project configuration
-
----
-
-## 📌 Notes
-
-* Make sure all required environment variables are properly configured
-* Do not upload sensitive keys to public repositories
 
 ---
 
