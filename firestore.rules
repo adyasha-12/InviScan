@@ -1,0 +1,115 @@
+// ===============================================================
+// Assumed Data Model
+// ===============================================================
+//
+// Collection: users/{userId}
+// Document ID: userId (Firebase Auth UID)
+// Fields:
+//   - uid: string (required) - User's unique ID
+//   - name: string (optional) - User's display name
+//   - email: string (required) - User's email address
+//   - avatar: string (optional) - URL to user's profile picture
+//   - joinedDate: string (optional) - When the user joined
+//   - scannedCount: number (optional) - Total events scanned
+//
+// Collection: events/{eventId}
+// Document ID: auto-generated or custom string
+// Fields:
+//   - id: string (required) - Event unique ID
+//   - title: string (required) - Event name
+//   - location: string (required) - Event venue
+//   - date: string (required) - ISO date string
+//   - status: string (optional) - Current status label
+//   - isNew: bool (optional) - Flag for new scans
+//   - notificationEnabled: bool (optional) - Reminder setting
+//   - notificationTime: string (optional) - Reminder timing
+//   - image: string (optional) - Base64 or URL of invitation
+//   - startTime: string (optional) - Start time string
+//   - endTime: string (optional) - End time string
+//   - notes: string (optional) - User notes
+//   - aiSuggestions: string (optional) - AI generated advice
+//   - userId: string (required) - UID of the owner
+//   - createdAt: timestamp (optional) - Creation time
+//
+// ===============================================================
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isDocOwner() {
+      return isAuthenticated() && request.auth.uid == resource.data.userId;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && 
+        (get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin' ||
+         (request.auth.token.email == "adyasharana2030@gmail.com" && request.auth.token.email_verified == true));
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email']) &&
+             data.uid == request.auth.uid &&
+             isValidEmail(data.email) &&
+             (!('name' in data) || (data.name is string && data.name.size() < 100)) &&
+             (!('avatar' in data) || (data.avatar is string && data.avatar.size() < 1000)) &&
+             (!('scannedCount' in data) || data.scannedCount is number);
+    }
+
+    function isValidEvent(data) {
+      return data.keys().hasAll(['id', 'title', 'location', 'date', 'userId']) &&
+             data.id is string && data.id.size() < 100 &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.location is string && data.location.size() < 500 &&
+             data.date is string &&
+             data.userId == request.auth.uid &&
+             (!('status' in data) || (data.status is string && data.status.size() < 50)) &&
+             (!('isNew' in data) || data.isNew is bool) &&
+             (!('notificationEnabled' in data) || data.notificationEnabled is bool) &&
+             (!('image' in data) || (data.image is string && data.image.size() < 1000000)) && // 1MB limit check
+             (!('notes' in data) || (data.notes is string && data.notes.size() < 5000));
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isOwner(userId) && isValidUser(request.resource.data) && (!('role' in request.resource.data) || isAdmin());
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && (request.resource.data.role == resource.data.role || isAdmin());
+    }
+
+    match /events/{eventId} {
+      allow read: if isDocOwner() || isAdmin();
+      allow create: if isAuthenticated() && isValidEvent(request.resource.data);
+      allow update: if isDocOwner() && isValidEvent(request.resource.data) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isDocOwner() || isAdmin();
+    }
+
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

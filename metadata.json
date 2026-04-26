@@ -1,0 +1,7 @@
+{
+  "name": "InviScan",
+  "description": "A premium event management and invitation tracking dashboard with a modern, elegant aesthetic.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
